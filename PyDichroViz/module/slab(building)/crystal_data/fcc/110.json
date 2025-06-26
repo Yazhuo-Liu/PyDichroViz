@@ -1,0 +1,17 @@
+{
+    "basis": {
+        "positions": [
+            [0.0, 0.0],
+            [0.70710678118, 0.0]
+        ]
+    },
+    "layers_per_supercell": 2,
+    "in_plane_offsets": [
+        [0.0, 0.0],
+        [0.35355339059, 0.5]
+    ],
+    "out_of_plane_offsets": [0.0, 0.35355339059],
+    "x_period": 1.41421356237,
+    "y_period": 1.0,
+    "z_period": 0.70710678118
+}
