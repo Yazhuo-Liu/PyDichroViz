@@ -20,7 +20,6 @@ References:
 """
 
 import sys
-import random
 from math import degrees, atan, sqrt, pi, ceil, cos, acos, sin, gcd, radians
 import numpy as np
 from numpy import dot, cross
