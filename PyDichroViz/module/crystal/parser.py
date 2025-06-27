@@ -107,32 +107,3 @@ class CrystalDataParser:
             raise ValueError(f"Invalid JSON format in file: {je}")
         except Exception as e:
             raise RuntimeError(f"Unexpected error while loading crystal data: {e}")
-
-
-# ========================
-# Example Usage
-# ========================
-
-if __name__ == "__main__":
-    parser = CrystalDataParser()
-    try:
-        data = parser.load_and_parse(Path("structures/fcc/110.json"))
-
-        print("JSON data is valid and parsed successfully.\n")
-
-        print("Meta Information:")
-        print(f"Crystal System: {data['_meta']['crystal_system']}")
-        print(f"Plane: {data['_meta']['plane']}")
-
-        print("\nAtomic Positions:")
-        for pos in data["basis"]["positions"]:
-            print(f"- {pos}")
-
-        print("\nResolved Values:")
-        print(f"X Period: {data['x_period']} (≈√2)")
-        print(f"Y Period: {data['y_period']} (≈1.0)")
-        print(f"Z Period: {data['z_period']} (≈√2/2)")
-        print(f"Z Layer Offset: {data['out_of_plane_offsets'][1]} (≈√2/4)")
-
-    except Exception as e:
-        print(f"[ERROR] Failed to process crystal data: {e}")

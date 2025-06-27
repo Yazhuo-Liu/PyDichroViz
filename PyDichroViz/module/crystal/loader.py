@@ -74,29 +74,3 @@ class CrystalStructureLoader:
             )
 
         return data
-
-
-# ================================================
-# 🔍 Test Cases (Main Guard)
-# ================================================
-
-if __name__ == "__main__":
-    import pprint
-
-    pp = pprint.PrettyPrinter(indent=2)
-
-    test_cases = [
-        {"crystal_system": "fcc", "plane": "110"},
-        {"crystal_system": "bcc", "plane": "100"},
-    ]
-
-    for case in test_cases:
-        print(f"\n🧪 Testing: {case['crystal_system']}({case['plane']})")
-        try:
-            loader = CrystalStructureLoader(**case)
-            data = loader.load_structure()
-            print("✅ Successfully loaded structure.")
-            print("Meta Info:")
-            pp.pprint(data["_meta"])
-        except Exception as e:
-            print(f"❌ Error: {e}")
