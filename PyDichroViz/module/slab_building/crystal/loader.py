@@ -1,5 +1,5 @@
 from pathlib import Path
-from parser import CrystalDataParser
+from .parser import CrystalDataParser
 
 class CrystalStructureLoader:
     def __init__(self, crystal_system: str, plane: str, base_dir: Path = None):

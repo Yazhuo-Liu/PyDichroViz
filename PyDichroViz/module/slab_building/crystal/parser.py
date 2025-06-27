@@ -3,7 +3,7 @@ import math
 from pathlib import Path
 from typing import Dict, Any, Union
 from jsonschema import validate, ValidationError
-from schema import CRYSTAL_DATA_SCHEMA
+from .schema import CRYSTAL_DATA_SCHEMA
 
 class CrystalDataParser:
     def __init__(self):
