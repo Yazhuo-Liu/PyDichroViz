@@ -1,5 +1,5 @@
 import numpy as np
-from crystal.loader import CrystalStructureLoader
+from ..crystal.loader import CrystalStructureLoader
 
 Array2D = np.ndarray  # shape: (N, 2), representing N atoms with x, y
 

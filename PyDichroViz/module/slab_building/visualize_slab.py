@@ -2,10 +2,8 @@ import matplotlib.pyplot as plt
 from typing import Optional, List, Union, Tuple
 import numpy as np
 import os
-
-# 如果你是从 crystal.loader 导入的 CrystalStructureLoader
-from crystal.loader import CrystalStructureLoader
-from builder import build_slab_structure
+from ..crystal.loader import CrystalStructureLoader
+from .builder import build_slab_structure
 
 
 def visualize_slab_layers(

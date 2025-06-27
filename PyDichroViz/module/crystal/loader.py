@@ -1,20 +1,30 @@
+# crystal/loader.py
+
 from pathlib import Path
+import os
+from typing import Dict, Any
 from .parser import CrystalDataParser
 
 class CrystalStructureLoader:
-    def __init__(self, crystal_system: str, plane: str, base_dir: Path = None):
+    def __init__(self, crystal_system: str, plane: str, structure_dir: Path = None):
         """
         Initialize the loader with crystal system and plane.
 
         Args:
             crystal_system (str): e.g., 'fcc', 'bcc', 'sc'
             plane (str): e.g., '100', '110', '111'
-            base_dir (Path): Directory containing subfolders of crystal systems.
-                             If not provided, defaults to 'data/structures/'
+            structure_dir (Path): Directory containing crystal structure files.
+                                  If not provided, defaults to `crystal/structures/`.
         """
         self.crystal_system = crystal_system.lower()
         self.plane = plane
-        self.base_dir = base_dir or Path(__file__).parent.parent / "crystal_data"
+        # 设置默认路径为当前模块下的 structures 目录
+        self.structure_dir = structure_dir or self._get_default_structure_dir()
+
+    def _get_default_structure_dir(self) -> Path:
+        """Get the default structure directory inside the module."""
+        module_dir = Path(os.path.dirname(__file__))  # 当前 loader.py 所在目录
+        return module_dir / "structures"
 
     def find_structure_file(self) -> Path:
         """
@@ -26,7 +36,7 @@ class CrystalStructureLoader:
         Raises:
             FileNotFoundError: If no matching file is found.
         """
-        crystal_dir = self.base_dir / self.crystal_system
+        crystal_dir = self.structure_dir / self.crystal_system
         candidate = crystal_dir / f"{self.plane}.json"
 
         if not candidate.exists():
@@ -37,7 +47,7 @@ class CrystalStructureLoader:
 
         return candidate
 
-    def load_structure(self) -> dict:
+    def load_structure(self) -> Dict[str, Any]:
         """
         Load and validate the crystal structure data.
 
@@ -67,7 +77,7 @@ class CrystalStructureLoader:
 
 
 # ================================================
-# Test Cases (Main Guard)
+# 🔍 Test Cases (Main Guard)
 # ================================================
 
 if __name__ == "__main__":
@@ -81,12 +91,12 @@ if __name__ == "__main__":
     ]
 
     for case in test_cases:
-        print(f"\nTesting: {case['crystal_system']}({case['plane']})")
+        print(f"\n🧪 Testing: {case['crystal_system']}({case['plane']})")
         try:
             loader = CrystalStructureLoader(**case)
             data = loader.load_structure()
-            print("Successfully loaded structure.")
+            print("✅ Successfully loaded structure.")
             print("Meta Info:")
             pp.pprint(data["_meta"])
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"❌ Error: {e}")

@@ -1,5 +1,3 @@
-# module/slab_building/crystal/__init__.py
-
 """
 Package initialization for the 'crystal' module.
 

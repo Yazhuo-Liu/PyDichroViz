@@ -116,7 +116,7 @@ class CrystalDataParser:
 if __name__ == "__main__":
     parser = CrystalDataParser()
     try:
-        data = parser.load_and_parse(Path("crystal_data/fcc/110.json"))
+        data = parser.load_and_parse(Path("structures/fcc/110.json"))
 
         print("JSON data is valid and parsed successfully.\n")
 
