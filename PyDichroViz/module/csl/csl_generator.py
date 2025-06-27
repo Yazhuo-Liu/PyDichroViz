@@ -82,15 +82,30 @@ def get_theta_m_n_list(uvw, sigma):
 
 def print_list(uvw, limit):
     """
-    prints a list of smallest sigmas/angles for a given axis(uvw).
+    
+    This function generates a list of angles (in degrees) corresponding to
+    the smallest sigma values for a given rotation axis (uvw). It iterates
+    through possible sigma values from 0 to the specified limit, calculates
+    the corresponding angles, and stores the results in a list.
+    
+    arguments:
+    uvw -- the axis of rotation.
+    limit -- the maximum sigma of interest.
+    
+    Returns:
+    results -- a numpy array containing tuples of (sigma, angle in degrees).
+
     """
+    results = [] 
     for i in range(limit):
         tt = get_theta_m_n_list(uvw, i)
         if len(tt) > 0:
             theta, _, _ = tt[0]
-            print("Sigma:   {0:3d}  Theta:  {1:5.2f} "
-                  .format(i, degrees(theta)))
-
+            # instead of printing the whole list, we add the results to a np array.
+            # print("Sigma:   {0:3d}  Theta:  {1:5.2f} "
+            #       .format(i, degrees(theta)))
+            results.append((i, degrees(theta)))
+    return np.array(results)
 
 def rot(a, Theta):
     """
@@ -500,16 +515,34 @@ def Find_Orthogonal_cell(basis, uvw, m, n, GB1):
 
 def print_list_GB_Planes(uvw, basis, m, n, lim=3):
     """
-    prints lists of GB planes given an axis, basis, m and n.
+    This function generates a list of grain boundary (GB) planes based on the
+    specified rotation axis (uvw), basis type, and parameters m and n.
+    It computes possible GB planes, their orthogonal cells, and categorizes
+    them by type (symmetric tilt, tilt, twist, or mixed). The results are
+    returned as a list of tuples containing the GB planes and their types.
+    
+    Arguments:
+    uvw -- the axis of rotation.
+    basis -- the lattice basis (e.g., 'fcc', 'bcc', 'diamond', or 'sc').
+    m, n -- two integers that define the GB plane.
+    lim -- the upper limit for the plane indices (default is 3).
+    
+    Returns:
+    results -- a list of tuples containing the GB planes (two np arrays) and their types (str).
+    
     """
     uvw = np.array(uvw)
     V1, V2, _, Type = Create_Possible_GB_Plane_List(uvw, m, n, lim)
+    # the results is a list of tuples containing the GB planes (two np array) and their types (str)
+    results = []
     for i in range(len(V1)):
         Or = Find_Orthogonal_cell(basis, uvw, m, n, V1[i])
         if Or:
-            print("{0:<20s}   {1:<20s}   {2:<20s}   {3:<10s}"
-                  .format(str(V1[i]), str(V2[i]), Type[i], str(Or[2])))
-
+            # instead of printing the whole list, we just output the results
+            # print("{0:<20s}   {1:<20s}   {2:<20s}   {3:<10s}"
+            #       .format(str(V1[i]), str(V2[i]), Type[i], str(Or[2])))
+            results.append((V1[i], V2[i], Type[i]))
+    return results
 
 # ___CSL/DSC vector construction___#
 
@@ -701,6 +734,43 @@ def Ortho_fcc_bcc(basis, O1, O2):
         ortho2[:, i] = O2[:, i] / Min_d
     return (ortho1, ortho2)
 
+def calculate_GB_planes(basis, uvw, sigma, lim=1):
+    """
+    This function calculates the grain boundary (GB) planes based on the
+    specified rotation axis (uvw), basis type, and sigma value.
+    It generates a list of GB planes and their orthogonal cells, returning
+    the results as a list of tuples containing the GB planes and their types.
+    
+    Arguments:
+    uvw -- the axis of rotation.
+    basis -- the lattice basis (e.g., 'fcc', 'bcc', 'diamond', or 'sc').
+    sigma -- the sigma value for the GB plane.
+    lim -- upper limit for the plane indices (default is 3).
+    
+    Returns:
+    results -- a list of tuples containing the GB planes (two np arrays) and their types (str).
+    """
+    uvw1 = np.array([int(uvw[0]), int(uvw[1]), int(uvw[2])])
+    uvw2 = CommonDivisor(uvw1)[0]
+    _, m, n = get_theta_m_n_list(uvw2, sigma)[0]
+    return print_list_GB_Planes(uvw2, basis, m, n, lim)
+
+def sigma_list(uvw, limit=100):
+    """
+    This function generates a list of possible sigma values for a given
+    rotation axis (uvw) and limit.
+    
+    Arguments:
+    uvw -- the axis of rotation.
+    limit -- the upper limit for the sigma values (default is 100).
+    
+    Returns:
+    results -- a list of tuples containing the sigma values and their angles.
+    """
+    uvw1 = np.array([int(uvw[0]), int(uvw[1]), int(uvw[2])])
+    uvw2 = CommonDivisor(uvw1)[0]
+    return print_list(uvw2, limit)
+
 def main():
 
     if (len(sys.argv) != 4 and len(sys.argv) != 5 and len(sys.argv) != 6 and
@@ -712,18 +782,28 @@ def main():
 
     if len(sys.argv) == 4:
         limit = 100
-        print("   List of possible CSLs for {} axis sorted by Sigma   "
+        print("List of possible CSLs for {} axis sorted by Sigma\n"
               .format(str(uvw)))
-        print_list(uvw, limit)
+        results = print_list(uvw, limit)
+        print("Sigma\t \t Theta")
+        print("--------------------------------------------------")
+        for sigma, angle in results:
+            print(f"Sigma: {sigma} \t Angle: {angle:.2f} \t(degrees)")
+        print("--------------------------------------------------")
         print("\n Choose a basis, pick a sigma and use the second mode!\n")
 
     if len(sys.argv) == 5:
 
         try:
             limit = int(sys.argv[4])
-            print("    List of possible CSLs for {} axis sorted by Sigma   "
+            print("List of possible CSLs for {} axis sorted by Sigma\n"
                   .format(str(uvw)))
-            print_list(uvw, limit)
+            results = print_list(uvw, limit)
+            print("Sigma\t \t Theta")
+            print("--------------------------------------------------")
+            for sigma, angle in results:
+                print(f"Sigma: {sigma} \t Angle: {angle:.2f} \t(degrees)")
+            print("--------------------------------------------------")
             print("\n Choose a basis, pick a sigma and use the second mode!\n")
 
         except:
@@ -739,12 +819,13 @@ def main():
 
         try:
             _, m, n = get_theta_m_n_list(uvw, sigma)[0]
-
+            results = print_list_GB_Planes(uvw, basis, m, n, lim)
             print("----------List of possible CSL planes for Sigma {}---------"
                   .format(sigma))
-            print(" GB1-------------------GB2-------------------Type----------"
-                  "Number of Atoms ")
-            print_list_GB_Planes(uvw, basis, m, n, lim)
+            print(" GB1-------------------GB2-------------------Type-----------")
+            for GB1, GB2, Type in results:
+                print("{0:<20s}   {1:<20s}   {2:<20s}"
+                      .format(str(GB1), str(GB2), Type))
 
         except:
             print("Your input sigma is wrong!")
@@ -765,12 +846,13 @@ def main():
                 print('You have chosen a large limit! It may take a while ...')
                 print(2*'\n')
 
+            results = print_list_GB_Planes(uvw, basis, m, n, lim)
             print("----------List of possible CSL planes for Sigma {}---------"
                   .format(sigma))
-            print(" GB1-------------------GB2-------------------Type----------"
-                  "Number of Atoms ")
-
-            print_list_GB_Planes(uvw, basis, m, n, lim)
+            print(" GB1-------------------GB2-------------------Type-----------")
+            for GB1, GB2, Type in results:
+                print("{0:<20s}   {1:<20s}   {2:<20s}"
+                      .format(str(GB1), str(GB2), Type))
 
         except:
             print("Your input sigma is wrong!")

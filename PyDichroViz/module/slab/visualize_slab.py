@@ -17,7 +17,7 @@ def visualize_slab_layers(
     output_path: Optional[str] = None
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
-    Visualize the slab structure layer-by-layer using different markers and colors.
+    Visualize the slab structure layer by layer using different markers and colors.
 
     Args:
         slab_array (np.ndarray): Output from build_slab_structure, shape (L, N, 2).
@@ -32,7 +32,7 @@ def visualize_slab_layers(
     Returns:
         fig, ax: Matplotlib figure and axes objects.
     """
-    # 输入验证
+    # Input validation
     if not isinstance(slab_array, np.ndarray):
         raise ValueError("Expected 'slab_array' to be a NumPy array.")
     if slab_array.ndim != 3 or slab_array.shape[-1] != 2:
@@ -40,7 +40,7 @@ def visualize_slab_layers(
 
     num_layers = slab_array.shape[0]
 
-    # 默认 marker 和颜色
+    # Default marker and colors
     default_markers = ['o', 's', '^', 'D', 'v', '>', '<', 'p', '*', 'X', 'P']
     default_colors = plt.cm.tab10(np.linspace(0, 1, num_layers))
 
@@ -58,7 +58,7 @@ def visualize_slab_layers(
     else:
         raise ValueError("colors must be 'auto' or a list of strings.")
 
-    # 创建绘图
+    # Create the plot
     fig, ax = plt.subplots(figsize=(8, 6))
 
     for i in range(num_layers):
@@ -83,7 +83,7 @@ def visualize_slab_layers(
 
     if output_path:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        print(f"💾 Saving plot to {output_path}")
+        print(f"Saving plot to {output_path}")
         fig.savefig(output_path, dpi=150, bbox_inches='tight')
 
     if show:
@@ -94,7 +94,7 @@ def visualize_slab_layers(
 
 
 # ================================================
-# 🔍 Test Case (Main Guard)
+# Test Case (Main Guard)
 # ================================================
 
 if __name__ == "__main__":
@@ -102,20 +102,20 @@ if __name__ == "__main__":
 
     pp = pprint.PrettyPrinter(indent=2)
 
-    print("🧪 Running test inside visualize_slab.py")
+    print("Running test inside visualize_slab.py")
 
     # Step 1: Load crystal data
     loader = CrystalStructureLoader("fcc", "110")
     try:
         crystal_data = loader.load_structure()
-        print("✅ Successfully loaded crystal structure:")
+        print("Successfully loaded crystal structure:")
         pp.pprint(crystal_data["_meta"])
     except Exception as e:
-        print(f"❌ Failed to load crystal  {e}")
+        print(f"Failed to load crystal: {e}")
         exit(1)
 
     # Step 2: Build slab
-    print("\n🧱 Building slab...")
+    print("\nBuilding slab...")
     try:
         slab = build_slab_structure(
             crystal_data=crystal_data,
@@ -123,9 +123,9 @@ if __name__ == "__main__":
             repeat_x=20,
             repeat_y=20
         )
-        print(f"\n📊 Slab built successfully. Shape: {slab.shape} → (layers, atoms per layer, coordinates)")
+        print(f"\nSlab built successfully. Shape: {slab.shape} → (layers, atoms per layer, coordinates)")
     except Exception as e:
-        print(f"❌ Error during slab building: {e}")
+        print(f"Error during slab building: {e}")
         exit(1)
 
     # Step 3: Visualize and save
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     output_dir = "output"
     output_file = os.path.join(output_dir, f"slab_{system}_{plane}.png")
 
-    print("\n🖼️ Visualizing and saving plot...")
+    print("\nVisualizing and saving plot...")
     visualize_slab_layers(
         slab,
         markers="auto",
@@ -147,4 +147,4 @@ if __name__ == "__main__":
         output_path=output_file
     )
 
-    print("🎉 Visualization completed.")
+    print("Visualization completed.")

@@ -9,35 +9,29 @@ def build_slab_structure(
     a: float = 1.0,
     repeat_x: int = 3,
     repeat_y: int = 3
-) -> Array2D:
+) -> np.ndarray:
     """
-    Build a 2D slab by repeating the unit cell in-plane and stacking layers.
-    Returns coordinates in a NumPy array for better performance and analysis.
+    Build a 2D slab by repeating the unit cell in-plane and stacking layers,
+    centered around the origin.
 
     Args:
         crystal_data (dict): Parsed crystal data from CrystalStructureLoader.
         a (float): Lattice constant.
-        repeat_x (int): Number of repetitions in x-direction.
-        repeat_y (int): Number of repetitions in y-direction.
+        repeat_x (int): Number of repetitions along x-direction (total, centered).
+        repeat_y (int): Number of repetitions along y-direction (total, centered).
 
     Returns:
-        np.ndarray: A 3D NumPy array of shape (num_layers, num_atoms_per_layer, 2),
-                    where the last dimension is [x, y].
-
-    Raises:
-        KeyError: If required field 'layers_per_supercell' is missing.
-        ValueError: If layer count is invalid.
+        np.ndarray: A 3D NumPy array of shape (num_layers, num_atoms_per_layer, 2).
     """
     # Step 0: Read number of layers from crystal_data
     if "layers_per_supercell" not in crystal_data:
         raise KeyError("Required field 'layers_per_supercell' is missing in crystal data.")
 
     num_layers = crystal_data["layers_per_supercell"]
-
     if not isinstance(num_layers, int) or num_layers < 1:
         raise ValueError(f"'layers_per_supercell' must be a positive integer. Got: {num_layers}")
 
-    # Step 1: Extract key parameters from crystal data
+    # Step 1: Extract lattice basis and offsets
     basis_positions = np.array(crystal_data["basis"]["positions"]) * a
     in_plane_offsets = np.array(crystal_data["in_plane_offsets"]) * a
 
@@ -46,9 +40,13 @@ def build_slab_structure(
 
     num_basis = len(basis_positions)
 
-    # Step 2: Generate all atom positions in a single unitcell tile
-    x_indices = np.arange(repeat_x)
-    y_indices = np.arange(repeat_y)
+    # Step 2: Generate symmetric x/y repetitions around 0
+    x_half = repeat_x // 2
+    y_half = repeat_y // 2
+
+    # If repeat_x/y is odd, include 0, otherwise center symmetrically
+    x_indices = np.arange(-x_half, x_half + 1) if repeat_x % 2 else np.arange(-x_half, x_half)
+    y_indices = np.arange(-y_half, y_half + 1) if repeat_y % 2 else np.arange(-y_half, y_half)
 
     xx, yy = np.meshgrid(x_indices, y_indices, indexing='ij')
     shifts = np.stack([xx.ravel(), yy.ravel()], axis=1) * [x_period, y_period]
@@ -57,13 +55,14 @@ def build_slab_structure(
     tile_shifts = np.repeat(shifts[np.newaxis, :, :], num_basis, axis=0)
     tiled_basis = np.repeat(basis_positions[:, np.newaxis, :], len(shifts), axis=1)
 
-    atoms_in_unit = (tiled_basis + tile_shifts).reshape(-1, 2)  # Shape: (repeat_x * repeat_y * num_basis, 2)
+    atoms_in_unit = (tiled_basis + tile_shifts).reshape(-1, 2)
 
-    # Step 3: Stack layers with offset
-    layer_offsets = np.tile(in_plane_offsets, (num_layers, 1))[:num_layers]  # Shape: (num_layers, 2)
-    slab_array = atoms_in_unit + layer_offsets[:, np.newaxis, :]  # Shape: (num_layers, N, 2)
+    # Step 3: Stack layers with offsets
+    layer_offsets = np.tile(in_plane_offsets, (num_layers, 1))[:num_layers]
+    slab_array = atoms_in_unit + layer_offsets[:, np.newaxis, :]
 
     return slab_array
+
 
 
 # ================================================
